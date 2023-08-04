@@ -1,0 +1,8 @@
+.idea
+
+.env
+auth/config.twitch
+pm2_module_conf.json
+auth/request.token
+yt_response.json
+auth/yt_secrets.json

@@ -1,0 +1,14 @@
+services:
+  app:
+    build: .
+    restart: 'unless-stopped'
+    logging:
+        driver: "json-file"
+        options:
+            max-size: "100m"
+            max-file: "5"
+    volumes:
+      - ./.env:/app/.env
+      - ./auth:/app/auth
+      - ./pm2_module_conf.json:/home/app/.pm2/module_conf.json
+      - ./youtubeTokenCheck.sh:/app/youtubeTokenCheck.sh
