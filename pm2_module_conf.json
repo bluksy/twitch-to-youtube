@@ -1,0 +1,37 @@
+{
+    "pm2-health": {
+        "smtp": {
+            "host": "smtp.gmail.com",
+            "port": 465,
+            "secure": true,
+            "user": "",
+            "password": ""
+        },
+        "mailTo": "",
+        "replyTo": "",
+        "events": [
+            "exit"
+        ],
+        "exceptions": true,
+        "messages": true,
+        "messageExcludeExps": [],
+        "batchPeriodM": 60,
+        "metric": {},
+        "metricIntervalS": 60,
+        "aliveTimeoutS": 300,
+        "addLogs": true,
+        "appsExcluded": [],
+        "snapshot": {
+            "url": "",
+            "token": "",
+            "auth": {
+                "user": "",
+                "password": ""
+            },
+            "disabled": false
+        }
+    },
+    "module-db-v2": {
+        "pm2-health": {}
+    }
+}
