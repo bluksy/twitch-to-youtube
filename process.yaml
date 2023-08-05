@@ -5,4 +5,3 @@
 - script: ./youtubeTokenCheck.sh
   interpreter: /bin/sh
   watch: false
-  restart_delay: 86400000
