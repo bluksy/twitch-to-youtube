@@ -9,35 +9,52 @@ if [ -z "$STREAMER_NAME" ]; then
   exit 1
 fi
 
-streamer_name=$STREAMER_NAME
-retry_time=${RETRY_TIME:-30s}
+RETRY_TIME=${RETRY_TIME:-30s}
+DESCRIPTION=${DESCRIPTION:""}
 
-echo "Streamer name: $streamer_name"
-echo "Retry time: $retry_time"
+echo "Streamer name: $STREAMER_NAME"
+echo "Retry time: $RETRY_TIME"
+echo "Description: $DESCRIPTION"
 
 if [ -n "$TIMEZONE" ]; then
   export TZ=${TIMEZONE}
   echo "Timezone: $TZ"
 fi
 
-while true
-do
-        # Check if streamer is live
-        if streamlink "twitch.tv/$streamer_name" >/dev/null; then
-            echo "$streamer_name live"
-        else
-            echo "$streamer_name not live at $(date)"
-            sleep "$retry_time"
-            continue
-        fi
+while true; do
+  TITLE=$(streamlink twitch.tv/"$STREAMER_NAME" -j | jq '.metadata?.title?')
 
-        timedate=$(date +%F)
+  # Check if streamer is live
+  if [ "$TITLE" != null ]; then
+    echo "$STREAMER_NAME is live"
+    # Remove outer quotes from the title
+    TITLE=${TITLE:1:-1}
+  else
+    echo "$STREAMER_NAME is not live at $(date)"
+    sleep "$RETRY_TIME"
+    continue
+  fi
 
-        # Create the input file. Contains upload parameters
-        echo '{"title":"'"${streamer_name}"' | '"$timedate"'","privacyStatus":"private","recordingDate":"'"$timedate"'","description":""}' > /tmp/yt_input
+  TIMEDATE=$(date +%F)
 
-        # Cut after 10h because of youtube limit
-        streamlink twitch.tv/$streamer_name best --hls-duration 10:00:00 --twitch-disable-hosting --config ./auth/config.twitch -O 2>/dev/null | ./youtubeuploader/youtubeuploader -cache ./auth/request.token -secrets ./auth/yt_secrets.json -metaJSON /tmp/yt_input -filename - >/dev/null 2>&1
+  # Create the input file containing upload parameters
+  printf '{
+    "title": "%s | %s | %s",
+    "privacyStatus": "private",
+    "recordingDate": "%s",
+    "description": "%s"
+  }' "${STREAMER_NAME}" "${TIMEDATE}" "${TITLE}" "${TIMEDATE}" "${DESCRIPTION}" > ./yt_input
 
-        echo recording and uploading completed
+  # Limit the stream duration to 10 hours for YouTube
+  streamlink twitch.tv/$STREAMER_NAME best \
+    --hls-duration 10:00:00 \
+    --twitch-disable-hosting \
+    --config ./auth/config.twitch \
+    -O 2>/dev/null | ./youtubeuploader/youtubeuploader \
+    -cache ./auth/request.token \
+    -secrets ./auth/yt_secrets.json \
+    -metaJSON ./yt_input \
+    -filename - >/dev/null 2>&1
+
+  echo "Recording and uploading completed"
 done
