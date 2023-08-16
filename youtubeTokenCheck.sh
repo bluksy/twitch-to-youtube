@@ -2,9 +2,9 @@
 
 while [ ! -f ./youtubeTokenCheck.lock ]
 do
-  refresh_body='{"client_id":"'$(jq -r '.web.client_id' ./auth/yt_secrets.json)'","client_secret":"'$(jq -r '.web.client_secret' ./auth/yt_secrets.json)'","refresh_token":"'$(jq -r '.refresh_token' ./auth/request.token)'","grant_type":"refresh_token"}'
+  ./refreshToken.sh
 
-  access_token=$(curl --silent -d "$refresh_body" -H "Content-Type: application/json" -X POST https://www.googleapis.com/oauth2/v4/token | jq -r '.access_token')
+  access_token=$(cat ./auth/new_token)
 
   url=$(printf 'https://www.googleapis.com/youtube/v3/i18nLanguages?access_token=%s' "$access_token")
 

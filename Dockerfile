@@ -14,7 +14,7 @@ WORKDIR /app
 
 FROM base
 
-COPY --chown=app:app ./.env ./twitchToYoutube.sh ./process.yaml youtubeTokenCheck.sh /app/
+COPY --chown=app:app ./.env ./twitchToYoutube.sh ./process.yaml refreshToken.sh scheduleLatestVideo.sh youtubeTokenCheck.sh /app/
 COPY --chown=app:app ./auth/ /app/auth/
 
 RUN pm2 install pm2-health \
