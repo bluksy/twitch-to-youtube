@@ -16,10 +16,7 @@ API_KEY=$(cat ./auth/new_token)
 CHANNEL_ID=${YT_CHANNEL_ID:""}
 
 # Get the latest video ID from the channel
-VIDEO_ID=$(curl -s "https://www.googleapis.com/youtube/v3/search?access_token=${API_KEY}" \
-            "&channelId=${CHANNEL_ID}&order=date&part=snippet&type=video&forMine=false&max_results=1" | \
-            jq -r '.items[0].id.videoId')
-
+VIDEO_ID=$(curl -s "https://www.googleapis.com/youtube/v3/search?access_token=${API_KEY}&channelId=${CHANNEL_ID}&order=date&part=snippet&type=video&forMine=false&max_results=1" | jq -r '.items[0].id.videoId')
 
 echo "Last uploaded video ID: ${VIDEO_ID}"
 
