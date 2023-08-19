@@ -10,4 +10,4 @@ REFRESH_BODY='{
 curl --silent -d "$REFRESH_BODY" \
      -H "Content-Type: application/json" \
      -X POST https://www.googleapis.com/oauth2/v4/token | \
-     jq -r '.access_token' > ./auth/new_token
+     jq -r '.access_token'

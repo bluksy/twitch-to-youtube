@@ -4,13 +4,8 @@ set -o allexport
 . .env
 set +o allexport
 
-if [ ! -f ./auth/new_token ]
-then
-  ./refreshToken.sh
-fi
-
 # Set your YouTube API key
-API_KEY=$(cat ./auth/new_token)
+API_KEY=$(./refresh_token.sh)
 
 # Your YouTube channel ID
 CHANNEL_ID=${YT_CHANNEL_ID:""}

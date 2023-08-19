@@ -10,5 +10,4 @@ services:
     volumes:
       - ./.env:/app/.env
       - ./auth:/app/auth
-      - ./pm2_module_conf.json:/home/app/.pm2/module_conf.json
-      - ./youtubeTokenCheck.sh:/app/youtubeTokenCheck.sh
+      - ./youtube_token_check.sh:/app/youtube_token_check.sh

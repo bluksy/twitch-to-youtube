@@ -1,10 +1,8 @@
 #!/bin/sh
 
-while [ ! -f ./youtubeTokenCheck.lock ]
+while [ ! -f ./youtube_token_check.lock ]
 do
-  ./refreshToken.sh
-
-  access_token=$(cat ./auth/new_token)
+  access_token=$(./refresh_token.sh)
 
   url=$(printf 'https://www.googleapis.com/youtube/v3/i18nLanguages?access_token=%s' "$access_token")
 
@@ -13,7 +11,7 @@ do
 
   if [ "$status_code" -ne 200 ] ; then
     jq '.' yt_response.json
-    touch ./youtubeTokenCheck.lock
+    touch ./youtube_token_check.lock
     exit 1
   else
     sleep 1d
