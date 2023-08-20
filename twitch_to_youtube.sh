@@ -56,6 +56,6 @@ while true; do
     -metaJSON ./yt_input \
     -filename - >/dev/null 2>&1
 
-  ./scheduleLatestVideo.sh
+  ./schedule_latest_video.sh
   echo "Recording and uploading completed"
 done
