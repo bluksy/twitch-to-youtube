@@ -30,7 +30,10 @@ while true; do
     # Remove outer quotes from the title
     TITLE=${TITLE:1:-1}
   else
-    echo "$STREAMER_NAME is not live at $(date)"
+    if [ "$(date +%M)" = "00" ]; then
+      echo "$STREAMER_NAME is not live at $(date)"
+    fi
+
     sleep "$RETRY_TIME"
     continue
   fi
