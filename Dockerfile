@@ -19,7 +19,7 @@ COPY --chown=app:app . /app/
 RUN pm2 install pm2-health \
     && pip install --user -U streamlink
 RUN mkdir youtubeuploader \
-    && wget -c https://github.com/porjo/youtubeuploader/releases/download/23.02/youtubeuploader_23.02_Linux_x86_64.tar.gz -O - | tar -xz -C ./youtubeuploader
+    && wget -c https://github.com/porjo/youtubeuploader/releases/download/23.03/youtubeuploader_23.03_Linux_x86_64.tar.gz -O - | tar -xz -C ./youtubeuploader
 
 COPY --chown=app:app ./pm2_module_conf.json /home/app/.pm2/module_conf.json
 
