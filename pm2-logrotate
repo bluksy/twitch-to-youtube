@@ -1,0 +1,11 @@
+/home/app/.pm2/logs/*.log {
+        su app app
+        rotate 12
+        weekly
+        missingok
+        notifempty
+        compress
+        delaycompress
+        copytruncate
+        create 0640 app app
+}

@@ -4,8 +4,10 @@ RUN addgroup -S app --gid 1000 && adduser -S app --uid 1000 -G app \
   && mkdir /app \
   && chown app:app /app
 
-RUN apk add --update npm curl jq \
+RUN apk add --update npm curl jq logrotate \
   && npm install pm2 -g
+
+COPY pm2-logrotate /etc/logrotate.d/pm2
 
 ENV PATH="${PATH}:/home/app/.local/bin"
 
