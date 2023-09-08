@@ -2,14 +2,14 @@
 
 while [ ! -f ./youtube_token_check.lock ]
 do
-  access_token=$(./refresh_token.sh)
+  API_KEY=$(./refresh_token.sh)
 
-  url=$(printf 'https://www.googleapis.com/youtube/v3/i18nLanguages?access_token=%s' "$access_token")
+  URL=$(printf 'https://www.googleapis.com/youtube/v3/i18nLanguages?access_token=%s' "$API_KEY")
 
-  status_code=$(curl --write-out "%{http_code}" --silent --output "yt_response.json" "${url}")
-  echo "YT check status: $status_code"
+  STATUS_CODE=$(curl --write-out "%{http_code}" --silent --output "yt_response.json" "${URL}")
+  echo "YT check status: $STATUS_CODE"
 
-  if [ "$status_code" -ne 200 ] ; then
+  if [ "$STATUS_CODE" -ne 200 ] ; then
     jq '.' yt_response.json
     touch ./youtube_token_check.lock
     exit 1
