@@ -1,19 +1,28 @@
 #!/bin/sh
 
-set -o allexport
+set -eao pipefail
 . .env
-set +o allexport
+set +a
+
+if [ ! -f ./last_video_id ];
+then
+    touch ./last_video_id
+fi
 
 # Set your YouTube API key
 API_KEY=$(./refresh_token.sh)
 
-# Your YouTube channel ID
-CHANNEL_ID=${YT_CHANNEL_ID:""}
-
 # Get the latest video ID from the channel
-VIDEO_ID=$(curl -s "https://www.googleapis.com/youtube/v3/search?access_token=${API_KEY}&channelId=${CHANNEL_ID}&order=date&part=snippet&type=video&forMine=false&max_results=1" | jq -r '.items[0].id.videoId')
+VIDEO_ID=$(curl -s "https://www.googleapis.com/youtube/v3/search?access_token=${API_KEY}&channelId=${YT_CHANNEL_ID}&order=date&part=snippet&type=video&forMine=false&max_results=1" | jq -r '.items[0].id.videoId')
+
+if [ "$(cat ./last_video_id)" = "${VIDEO_ID}" ];
+then
+  echo "video id same as last one"
+  exit 1
+fi
 
 echo "Last uploaded video ID: ${VIDEO_ID}"
+echo "${VIDEO_ID}" > last_video_id
 
 # Set the desired publish date and time in RFC3339 format
 # Get current timestamp

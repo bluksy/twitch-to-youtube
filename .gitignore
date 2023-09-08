@@ -6,3 +6,4 @@ pm2_module_conf.json
 auth/request.token
 yt_response.json
 auth/yt_secrets.json
+last_video_id

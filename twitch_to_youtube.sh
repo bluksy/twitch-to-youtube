@@ -1,8 +1,8 @@
 #!/bin/sh
 
-set -o allexport
+set -eao pipefail
 . .env
-set +o allexport
+set +a
 
 if [ -z "$STREAMER_NAME" ]; then
   echo "STREAMER_NAME variable missing"
@@ -21,8 +21,8 @@ if [ -n "$TIMEZONE" ]; then
   echo "Timezone: $TZ"
 fi
 
-while true; do
-  TITLE=$(streamlink twitch.tv/"$STREAMER_NAME" -j | jq '.metadata?.title?')
+while [ ! -f ./twitch_to_youtube.lock ]; do
+  TITLE=$(streamlink twitch.tv/"$STREAMER_NAME" -j | jq '.metadata?.title?' || true)
 
   # Check if streamer is live
   if [ "$TITLE" != null ]; then
@@ -57,8 +57,8 @@ while true; do
     -cache ./auth/request.token \
     -secrets ./auth/yt_secrets.json \
     -metaJSON ./yt_input \
-    -filename - >/dev/null 2>&1
+    -filename - >/dev/null 2>&1 || touch ./twitch_to_youtube.lock && exit 1
 
-  ./schedule_latest_video.sh
+  ./schedule_latest_video.sh || touch ./twitch_to_youtube.lock && exit 1
   echo "Recording and uploading completed"
 done
