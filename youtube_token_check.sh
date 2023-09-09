@@ -20,3 +20,4 @@ do
 done
 
 echo process is locked
+exit 0

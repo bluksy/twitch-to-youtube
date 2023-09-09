@@ -24,20 +24,14 @@ Create new project in Google Developers Console, get secrets and save it to `./a
 
 Run this script and visit the URL it outputs
 ```shell
-docker-compose run -p 8080:8080 app /bin/sh -c "./youtubeuploader/youtubeuploader -secrets ./auth/yt_secrets.json -filename ./process.yaml"
+docker-compose run -p 8080:8080 app /bin/sh -c "./youtubeuploader/youtubeuploader -secrets ./auth/yt_secrets.json -filename logrotate"
 ```
 After following the link you should have `./auth/request.token` file with access token for YouTube
 
 ## Monitoring
-Add your SMTP config into `pm2_module_conf.json` if you want email notifications when something fails
-- https://github.com/pankleks/pm2-health#readme
+Add your SMTP config into `.env` file
 
 ## Usage
 ```shell
 docker-compose up -d --build
-```
-
-### Logs
-```shell
-docker-compose logs app
 ```

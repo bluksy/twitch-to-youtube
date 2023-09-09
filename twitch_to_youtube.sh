@@ -1,11 +1,17 @@
 #!/bin/sh
 
+if [ -f ./twitch_to_youtube.lock ]; then
+  echo process is locked
+  exit 0
+fi
+
 set -eao pipefail
 . .env
 set +a
 
 if [ -z "$STREAMER_NAME" ]; then
   echo "STREAMER_NAME variable missing"
+  touch ./twitch_to_youtube.lock
   exit 1
 fi
 

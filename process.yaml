@@ -1,7 +1,0 @@
-- script: ./twitch_to_youtube.sh
-  interpreter: /bin/sh
-  watch : false
-
-- script: ./youtube_token_check.sh
-  interpreter: /bin/sh
-  watch: false

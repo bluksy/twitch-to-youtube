@@ -11,5 +11,4 @@ services:
     volumes:
       - ./.env:/app/.env
       - ./auth:/app/auth
-      - ./youtube_token_check.sh:/app/youtube_token_check.sh
-      - ./logs/:/home/app/.pm2/logs
+      - ./logs/:/app/logs

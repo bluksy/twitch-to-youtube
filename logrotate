@@ -1,7 +1,7 @@
-/home/app/.pm2/logs/*.log {
+/app/logs/*.log {
         su app app
-        rotate 12
-        weekly
+        rotate 15
+        daily
         missingok
         notifempty
         compress
