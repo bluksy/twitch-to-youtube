@@ -28,7 +28,7 @@ if [ -n "$TIMEZONE" ]; then
 fi
 
 while [ ! -f ./twitch_to_youtube.lock ]; do
-  TITLE=$(streamlink twitch.tv/"$STREAMER_NAME" -j | jq '.metadata?.title?' || true)
+  TITLE=$(streamlink twitch.tv/"$STREAMER_NAME" -j | jq '.metadata?.title?' || printf null)
 
   # Check if streamer is live
   if [ "$TITLE" != null ]; then
