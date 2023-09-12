@@ -4,6 +4,8 @@ set -eao pipefail
 . .env
 set +a
 
+. "$(dirname "$0")/functions.sh"
+
 if [ ! -f ./last_video_id ];
 then
     touch ./last_video_id
@@ -17,11 +19,11 @@ VIDEO_ID=$(curl -s "https://www.googleapis.com/youtube/v3/search?access_token=${
 
 if [ "$(cat ./last_video_id)" = "${VIDEO_ID}" ];
 then
-  echo "video id same as last one"
+  log "video id same as last one"
   exit 1
 fi
 
-echo "Last uploaded video ID: ${VIDEO_ID}"
+log "Last uploaded video ID: ${VIDEO_ID}"
 echo "${VIDEO_ID}" > last_video_id
 
 # Set the desired publish date and time in RFC3339 format
@@ -36,7 +38,7 @@ TOMORROW_TIMESTAMP=$((CURRENT_TIMESTAMP + PUBLISH_DELAY_SECONDS))
 # Convert tomorrow's timestamp to RFC3339 format
 PUBLISH_TIME=$(date -u -d "@$TOMORROW_TIMESTAMP" +"%Y-%m-%dT%H:%M:%SZ")
 
-echo "Publish time: $PUBLISH_TIME"
+log "Publish time: $PUBLISH_TIME"
 
 # Build the JSON data for the API request
 JSON_DATA='{

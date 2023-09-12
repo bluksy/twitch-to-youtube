@@ -9,23 +9,25 @@ set -eao pipefail
 . .env
 set +a
 
+. "$(dirname "$0")/functions.sh"
+
 if [ -z "$STREAMER_NAME" ]; then
-  echo "STREAMER_NAME variable missing"
+  log "STREAMER_NAME variable missing"
   touch ./twitch_to_youtube.lock
   exit 1
+fi
+
+if [ -n "$TIMEZONE" ]; then
+  export TZ=${TIMEZONE}
+  log "Timezone: $TZ"
 fi
 
 RETRY_TIME=${RETRY_TIME:-30s}
 DESCRIPTION=${DESCRIPTION:""}
 
-echo "Streamer name: $STREAMER_NAME"
-echo "Retry time: $RETRY_TIME"
-echo "Description: $DESCRIPTION"
-
-if [ -n "$TIMEZONE" ]; then
-  export TZ=${TIMEZONE}
-  echo "Timezone: $TZ"
-fi
+log "Streamer name: $STREAMER_NAME"
+log "Retry time: $RETRY_TIME"
+log "Description: $DESCRIPTION"
 
 while [ ! -f ./twitch_to_youtube.lock ]; do
   TITLE=$(streamlink twitch.tv/"$STREAMER_NAME" -j | jq '.metadata?.title?' || true)
@@ -33,12 +35,12 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
 
   # Check if streamer is live
   if [ "$TITLE" != null ]; then
-    echo "$STREAMER_NAME is live"
+    log "$STREAMER_NAME is live"
     # Remove outer quotes from the title
     TITLE=${TITLE:1:-1}
   else
     if [ "$(date +%M)" = "00" ]; then
-      echo "$STREAMER_NAME is not live at $(date)"
+      log "$STREAMER_NAME is not live"
     fi
 
     sleep "$RETRY_TIME"
@@ -67,5 +69,5 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
     -filename - >/dev/null 2>&1 || (touch ./twitch_to_youtube.lock && exit 1)
 
   ./schedule_latest_video.sh || (touch ./twitch_to_youtube.lock && exit 1)
-  echo "Recording and uploading completed"
+  log "Recording and uploading completed"
 done
