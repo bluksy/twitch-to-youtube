@@ -64,7 +64,7 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
     -cache ./auth/request.token \
     -secrets ./auth/yt_secrets.json \
     -metaJSON ./yt_input \
-    -filename - >/dev/null 2>&1 || touch ./twitch_to_youtube.lock && exit 1
+    -filename - >/dev/null 2>&1 || (touch ./twitch_to_youtube.lock && exit 1)
 
   ./schedule_latest_video.sh || touch ./twitch_to_youtube.lock && exit 1
   echo "Recording and uploading completed"
