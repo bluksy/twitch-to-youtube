@@ -11,7 +11,7 @@ then
     touch ./last_video_id
 fi
 
-# Set your YouTube API key
+## Set your YouTube API key
 API_KEY=$(./refresh_token.sh)
 
 # Get the latest video ID from the channel
@@ -40,12 +40,17 @@ PUBLISH_TIME=$(date -u -d "@$TOMORROW_TIMESTAMP" +"%Y-%m-%dT%H:%M:%SZ")
 
 log "Publish time: $PUBLISH_TIME"
 
+DESCRIPTION=$(printf '%s\\n%s' "$(cat description)" "${DESCRIPTION}" )
+
 # Build the JSON data for the API request
 JSON_DATA='{
   "id": "'$VIDEO_ID'",
   "status": {
     "publishAt": "'$PUBLISH_TIME'",
     "privacyStatus": "private"
+  },
+  "snippet": {
+    "description": "'$DESCRIPTION'"
   }
 }'
 

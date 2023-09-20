@@ -10,6 +10,7 @@ set -eao pipefail
 set +a
 
 . "$(dirname "$0")/functions.sh"
+. "$(dirname "$0")/twitch_api.sh"
 
 if [ -z "$STREAMER_NAME" ]; then
   log "STREAMER_NAME variable missing"
@@ -30,8 +31,8 @@ log "Retry time: $RETRY_TIME"
 log "Description: $DESCRIPTION"
 
 while [ ! -f ./twitch_to_youtube.lock ]; do
-  TITLE=$(streamlink twitch.tv/"$STREAMER_NAME" -j | jq '.metadata?.title?' || true)
-  TITLE=${TITLE:-null}
+  get_stream_detail body status
+  TITLE=$(echo $body | jq '.data[0].title')
 
   # Check if streamer is live
   if [ "$TITLE" != null ]; then
@@ -47,6 +48,7 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
     continue
   fi
 
+  ./collect_stream_info.sh &
   TIMEDATE=$(date +%F)
 
   # Create the input file containing upload parameters
@@ -68,6 +70,6 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
     -metaJSON ./yt_input \
     -filename - >/dev/null 2>&1 || (touch ./twitch_to_youtube.lock && exit 1)
 
-  ./schedule_latest_video.sh || (touch ./twitch_to_youtube.lock && exit 1)
+  ./update_latest_video.sh || (touch ./twitch_to_youtube.lock && exit 1)
   log "Recording and uploading completed"
 done
