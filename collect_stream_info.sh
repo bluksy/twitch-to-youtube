@@ -40,6 +40,10 @@ do
 
     sleep 1m
     continue
+  elif [ "$status" = "000" ]; then
+    log "network error"
+    sleep 1m
+    continue
   else
     log "$(echo "$body" | jq '.')"
     touch ./collect_stream_info.lock

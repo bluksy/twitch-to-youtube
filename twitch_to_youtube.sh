@@ -35,7 +35,7 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
   TITLE=$(echo $body | jq '.data[0].title')
 
   # Check if streamer is live
-  if [ "$TITLE" != null ]; then
+  if [ "$TITLE" != null ] && [ "$status" = "200" ]; then
     log "$STREAMER_NAME is live"
     # Remove outer quotes from the title
     TITLE=${TITLE:1:-1}
