@@ -36,7 +36,7 @@ get_token () {
     # validate token
     local validate_code=$(curl --silent -X GET 'https://id.twitch.tv/oauth2/validate' \
       --silent \
-      -o /dev/null \
+      --output "twitch_validate_response.json" \
       -H "Authorization: Bearer $TOKEN" \
       --write-out '%{http_code}')
 
@@ -46,6 +46,7 @@ get_token () {
       echo "$TOKEN" > auth/twitch_token
     elif [ "$validate_code" != "200" ]; then
       log "Validate token failed. Status code $validate_code"
+      log "$(jq '.' twitch_validate_response.json)"
     fi
   else
     local TOKEN=$(create_new_token)
