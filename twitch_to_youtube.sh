@@ -23,8 +23,8 @@ if [ -n "$TIMEZONE" ]; then
   log "Timezone: $TZ"
 fi
 
-_retry_time=${_retry_time:-30s}
-_description=${_description:""}
+_retry_time=${RETRY_TIME:-30s}
+_description=${DESCRIPTION:""}
 
 log "Streamer name: $STREAMER_NAME"
 log "Retry time: $_retry_time"
