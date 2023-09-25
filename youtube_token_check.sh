@@ -1,18 +1,20 @@
-#!/bin/sh
+#!/bin/ash
 
 . "$(dirname "$0")/functions.sh"
+. "$(dirname "$0")/youtube_api.sh"
 
 while [ ! -f ./youtube_token_check.lock ]
 do
-  API_KEY=$(./refresh_token.sh)
+  _youtube_api_token=""
+  refresh_youtube_token _youtube_api_token
 
-  URL=$(printf 'https://www.googleapis.com/youtube/v3/i18nLanguages?access_token=%s' "$API_KEY")
+  _token_check_url=$(printf 'https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=%s' "$_youtube_api_token")
 
-  STATUS_CODE=$(curl --write-out "%{http_code}" --silent --output "yt_response.json" "${URL}")
-  log "YT check status: $STATUS_CODE"
+  _token_check_status_url=$(curl --write-out "%{http_code}" --silent --output "youtube_token_response.json" "${_token_check_url}")
+  log "YT check status: $_token_check_status_url"
 
-  if [ "$STATUS_CODE" -ne 200 ] ; then
-    log "$(jq '.' yt_response.json)"
+  if [ "$_token_check_status_url" -ne 200 ] ; then
+    log "$(jq '.' youtube_token_response.json)"
     touch ./youtube_token_check.lock
     exit 1
   else

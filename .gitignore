@@ -2,14 +2,15 @@
 
 .env
 auth/config.twitch
-pm2_module_conf.json
 auth/request.token
-yt_response.json
-twitch_validate_response.json
 auth/yt_secrets.json
 auth/twitch_token
+
 last_video_id
-description
+title_changes
+
+youtube_token_response.json
+twitch_validate_response.json
 
 logs/*
 !logs/.gitkeep

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/ash
 
 if [ -f ./twitch_to_youtube.lock ]; then
   echo process is locked
@@ -23,33 +23,35 @@ if [ -n "$TIMEZONE" ]; then
   log "Timezone: $TZ"
 fi
 
-RETRY_TIME=${RETRY_TIME:-30s}
-DESCRIPTION=${DESCRIPTION:""}
+_retry_time=${_retry_time:-30s}
+_description=${_description:""}
 
 log "Streamer name: $STREAMER_NAME"
-log "Retry time: $RETRY_TIME"
-log "Description: $DESCRIPTION"
+log "Retry time: $_retry_time"
+log "Description: $_description"
 
 while [ ! -f ./twitch_to_youtube.lock ]; do
-  get_stream_detail body status
-  TITLE=$(echo $body | jq '.data[0].title')
+  _stream_detail_body=""
+  _stream_detail_status=""
+  get_stream_detail _stream_detail_body _stream_detail_status
+  _stream_title=$(echo "$_stream_detail_body" | jq '.data[0].title')
 
   # Check if streamer is live
-  if [ "$TITLE" != null ] && [ "$status" = "200" ]; then
+  if [ "$_stream_title" != null ] && [ "$_stream_detail_status" = "200" ]; then
     log "$STREAMER_NAME is live"
     # Remove outer quotes from the title
-    TITLE=${TITLE:1:-1}
+    _stream_title=${_stream_title:1:-1}
   else
     if [ "$(date +%M)" = "00" ]; then
       log "$STREAMER_NAME is not live"
     fi
 
-    sleep "$RETRY_TIME"
+    sleep "$_retry_time"
     continue
   fi
 
   ./collect_stream_info.sh &
-  TIMEDATE=$(date +%F)
+  _current_timedate=$(date +%F)
 
   # Create the input file containing upload parameters
   printf '{
@@ -57,7 +59,7 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
     "privacyStatus": "private",
     "recordingDate": "%s",
     "description": "%s"
-  }' "${STREAMER_NAME}" "${TIMEDATE}" "${TITLE}" "${TIMEDATE}" "${DESCRIPTION}" > ./yt_input
+  }' "${STREAMER_NAME}" "${_current_timedate}" "${_stream_title}" "${_current_timedate}" "${_description}" > ./yt_input
 
   # Limit the stream duration to 10 hours for YouTube
   streamlink twitch.tv/$STREAMER_NAME best \
