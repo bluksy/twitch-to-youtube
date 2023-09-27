@@ -75,7 +75,7 @@ get_stream_detail () {
   get_twitch_token _twitch_token
 
   local _twitch_stream_detail_url
-  _twitch_stream_detail_url=$(printf 'https://api.twitch.tv/helix/streams?user_login=%s' "$STREAMER_NAME")
+  _twitch_stream_detail_url=$(printf 'https://api.twitch.tv/helix/streams?user_login=%s&type=live' "$STREAMER_NAME")
 
   local _twitch_stream_detail_response
   _twitch_stream_detail_response=$(curl --silent \

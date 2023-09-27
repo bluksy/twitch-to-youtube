@@ -10,7 +10,6 @@ set -eao pipefail
 set +a
 
 . "$(dirname "$0")/functions.sh"
-. "$(dirname "$0")/twitch_api.sh"
 
 if [ -z "$STREAMER_NAME" ]; then
   log "STREAMER_NAME variable missing"
@@ -31,13 +30,11 @@ log "Retry time: $_retry_time"
 log "Description: $_description"
 
 while [ ! -f ./twitch_to_youtube.lock ]; do
-  _stream_detail_body=""
-  _stream_detail_status=""
-  get_stream_detail _stream_detail_body _stream_detail_status
-  _stream_title=$(echo "$_stream_detail_body" | jq '.data[0].title')
+  _stream_title=$(streamlink twitch.tv/"$STREAMER_NAME" -j | jq '.metadata?.title?' || true)
+  _stream_title=${_stream_title:-null}
 
   # Check if streamer is live
-  if [ "$_stream_title" != null ] && [ "$_stream_detail_status" = "200" ]; then
+  if [ "$_stream_title" != null ]; then
     log "$STREAMER_NAME is live"
     # Remove outer quotes from the title
     _stream_title=${_stream_title:1:-1}
