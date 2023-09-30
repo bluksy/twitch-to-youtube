@@ -9,7 +9,7 @@ set +a
 
 _old_stream_title=""
 _start_in_seconds=$(date +%s)
-printf '%s\\n' "Title changes:" > title_changes
+printf '%s\\n\\n' "Title changes:" > title_changes
 
 while [ ! -f ./collect_stream_info.lock ]
 do
