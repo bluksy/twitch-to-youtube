@@ -7,6 +7,28 @@ set +a
 . "$(dirname "$0")/functions.sh"
 . "$(dirname "$0")/twitch_api.sh"
 
+convert_seconds()
+{
+    local __t=$1
+    local __result_string=$2
+
+    local _h=$((__t/60/60%24))
+    local _m=$((__t/60%60))
+    local _s=$((__t%60))
+
+    if [ ${_h} != 0 ];then
+      _time_string=$(printf '%02d:%02d:%02d' $_h $_m $_s)
+    else
+      _time_string=$(printf '%02d:%02d' $_m $_s)
+    fi
+
+    if [ "$__result_string" ]; then
+      eval "$__result_string="'${_time_string}'""
+    else
+      echo "$_time_string"
+    fi
+}
+
 _old_stream_title=""
 _start_in_seconds=$(date +%s)
 printf '%s\\n\\n' "Title changes:" > title_changes
@@ -27,11 +49,11 @@ do
 
     if [ "$_stream_title" != "$_old_stream_title" ]; then
       if [ "$_old_stream_title" = "" ]; then
-        _timestamp="00:00:00"
+        _timestamp="00:00"
       else
         _current_in_seconds=$(date +%s)
         _diff_sec=$(expr ${_current_in_seconds} - ${_start_in_seconds})
-        _timestamp=$(date +%H:%M:%S -ud @"${_diff_sec}")
+        convert_seconds $_diff_sec _timestamp
       fi
 
       log "Refreshing title"
