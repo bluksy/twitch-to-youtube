@@ -54,7 +54,7 @@ get_twitch_token () {
       log "$(jq '.' twitch_validate_response.json)"
     fi
   else
-    create_new_twitch_token __current_twitch_token
+    create_new_twitch_token _current_twitch_token
     echo "$_current_twitch_token" > auth/twitch_token
   fi
 
