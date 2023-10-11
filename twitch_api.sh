@@ -88,7 +88,7 @@ get_stream_detail () {
   _twitch_stream_detail_status_code=$(printf "%s" "$_twitch_stream_detail_response" | tail -c 3)
 
   if [ "$__result_twitch_stream_detail_response_body" ] && [ "$__result_twitch_stream_detail_status_code" ]; then
-    eval $__result_twitch_stream_detail_response_body="'${_twitch_stream_detail_response_body}'"
+    eval "$__result_twitch_stream_detail_response_body="'${_twitch_stream_detail_response_body}'""
     eval $__result_twitch_stream_detail_status_code="'${_twitch_stream_detail_status_code}'"
   else
     echo "$_twitch_stream_detail_response"
