@@ -23,4 +23,4 @@ COPY --chown=app:app . /app/
 
 RUN pip install --user -U streamlink
 RUN mkdir youtubeuploader \
-    && wget -c https://github.com/porjo/youtubeuploader/releases/download/23.04/youtubeuploader_23.04_Linux_x86_64.tar.gz -O - | tar -xz -C ./youtubeuploader
+    && wget -c https://github.com/porjo/youtubeuploader/releases/download/23.06/youtubeuploader_23.06_Linux_x86_64.tar.gz -O - | tar -xz -C ./youtubeuploader
