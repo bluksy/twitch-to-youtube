@@ -1,15 +1,15 @@
 #!/bin/ash
 
-if [ -f ./twitch_to_youtube.lock ]; then
-  echo process is locked
-  exit 0
-fi
-
 set -eao pipefail
 . .env
 set +a
 
 . "$(dirname "$0")/functions.sh"
+
+if [ -f ./twitch_to_youtube.lock ]; then
+  log "process is locked"
+  exit 0
+fi
 
 if [ -z "$STREAMER_NAME" ]; then
   log "STREAMER_NAME variable missing"
@@ -64,10 +64,12 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
     --hls-duration $_max_length \
     --twitch-disable-hosting \
     --config ./auth/config.twitch \
+    --logfile ./logs/streamlink.log \
     -O 2>/dev/null | ./youtubeuploader/youtubeuploader \
     -cache ./auth/request.token \
     -secrets ./auth/yt_secrets.json \
     -metaJSON ./yt_input \
+    -metaJSONout "./logs/youtubeuploader_$_current_timedate.log" \
     -filename - >/dev/null 2>&1 || (touch ./twitch_to_youtube.lock && exit 1)
 
   ./update_latest_video.sh || (touch ./twitch_to_youtube.lock && exit 1)
