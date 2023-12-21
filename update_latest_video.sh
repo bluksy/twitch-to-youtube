@@ -33,7 +33,7 @@ get_video_category "$_youtube_api_token" "$_latest_video_id" _latest_video_categ
 if [ "$(cat ./last_video_id)" = "${_latest_video_id}" ];
 then
   log "video id same as last one"
-  exit 1
+  exit 0
 fi
 
 echo "${_latest_video_id}" > last_video_id
