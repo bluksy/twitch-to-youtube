@@ -51,14 +51,15 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
 
   ./collect_stream_info.sh &
   _current_timedate=$(date +%F)
+  _youtube_title=$(printf "%s | %s | %s" "${STREAMER_NAME}" "${_current_timedate}" "${_stream_title}" | cut -c 1-101)
 
   # Create the input file containing upload parameters
   printf '{
-    "title": "%s | %s | %s",
+    "title": "%s",
     "privacyStatus": "private",
     "recordingDate": "%s",
     "description": "%s"
-  }' "${STREAMER_NAME}" "${_current_timedate}" "${_stream_title}" "${_current_timedate}" "${_description}" > ./yt_input
+  }' "${_youtube_title}" "${_current_timedate}" "${_description}" > ./yt_input
 
   streamlink twitch.tv/$STREAMER_NAME best \
     --hls-duration $_max_length \
