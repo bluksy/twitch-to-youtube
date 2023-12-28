@@ -3,6 +3,16 @@
 . "$(dirname "$0")/functions.sh"
 . "$(dirname "$0")/youtube_api.sh"
 
+if [ ! -f ./auth/yt_secrets.json ]; then
+    log "File ./auth/yt_secrets.json does not exist"
+    exit 1
+fi
+
+if [ ! -f ./auth/request.token ]; then
+    log "File ./auth/request.token does not exist"
+    exit 1
+fi
+
 while [ ! -f ./youtube_token_check.lock ]
 do
   _youtube_api_token=""

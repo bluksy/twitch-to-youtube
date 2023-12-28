@@ -21,6 +21,7 @@ cp ./auth/config.twitch-example ./auth/config.twitch
 
 Create new project in Google Developers Console, get secrets and save it to `./auth/yt_secrets.json` file
 - tutorial here: https://github.com/porjo/youtubeuploader#youtube-api
+- make sure your app publishing status is set as production (OAuth consent screen tab)
 
 Run this script and visit the URL it outputs
 ```shell

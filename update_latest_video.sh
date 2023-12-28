@@ -50,7 +50,7 @@ _publish_time=$(date -u -d "@$_tomorrow_timestamp" +"%Y-%m-%dT%H:%M:%SZ")
 
 log "Publish time: $_publish_time"
 
-# title_changes file should always exist but in case it doesn't use just description from env variable
+# if title_changes file doesn't exist then use just description from env variable
 if [ ! -f ./title_changes ];
 then
   _description="${DESCRIPTION}"

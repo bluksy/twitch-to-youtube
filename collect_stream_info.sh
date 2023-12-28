@@ -7,6 +7,8 @@ set +a
 . "$(dirname "$0")/functions.sh"
 . "$(dirname "$0")/twitch_api.sh"
 
+check_vars STREAMER_NAME TWITCH_CLIENT_ID TWITCH_CLIENT_SECRET
+
 convert_seconds()
 {
     local __t=$1

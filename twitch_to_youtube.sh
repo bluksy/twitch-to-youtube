@@ -17,6 +17,18 @@ if [ -z "$STREAMER_NAME" ]; then
   exit 1
 fi
 
+if [ ! -f ./auth/yt_secrets.json ]; then
+    log "File ./auth/yt_secrets.json does not exist"
+    touch ./twitch_to_youtube.lock
+    exit 1
+fi
+
+if [ ! -f ./auth/request.token ]; then
+    log "File ./auth/request.token does not exist"
+    touch ./twitch_to_youtube.lock
+    exit 1
+fi
+
 if [ -n "$TIMEZONE" ]; then
   export TZ=${TIMEZONE}
   log "Timezone: $TZ"
