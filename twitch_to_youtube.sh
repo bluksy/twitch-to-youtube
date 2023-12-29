@@ -62,6 +62,7 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
   fi
 
   ./collect_stream_info.sh &
+  _collect_stream_info_pid=$!
   _current_timedate=$(date +%F)
   _youtube_title=$(printf "%s | %s | %s" "${STREAMER_NAME}" "${_current_timedate}" "${_stream_title}" | cut -c 1-101)
 
@@ -85,6 +86,7 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
     -metaJSONout "./logs/youtubeuploader_$_current_timedate.log" \
     -filename - >/dev/null 2>&1 || (touch ./twitch_to_youtube.lock && exit 1)
 
+  kill $_collect_stream_info_pid
   ./update_latest_video.sh || (touch ./twitch_to_youtube.lock && exit 1)
   log "Recording and uploading completed"
 done

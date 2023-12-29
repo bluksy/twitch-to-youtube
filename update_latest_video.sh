@@ -56,6 +56,7 @@ then
   _description="${DESCRIPTION}"
 else
   _description=$(printf '%s\\n%s' "$(cat title_changes)" "${DESCRIPTION}" )
+  rm ./title_changes
 fi
 
 # Build the JSON data for the API request
