@@ -25,7 +25,7 @@ Create new project in Google Developers Console, get secrets and save it to `./a
 
 Run this script and visit the URL it outputs
 ```shell
-docker-compose run -p 8080:8080 app /bin/sh -c "./youtubeuploader/youtubeuploader -secrets ./auth/yt_secrets.json -filename logrotate"
+docker compose run -p 8080:8080 app /bin/sh -c "./youtubeuploader/youtubeuploader -secrets ./auth/yt_secrets.json -filename logrotate"
 ```
 After following the link you should have `./auth/request.token` file with access token for YouTube
 
@@ -34,5 +34,5 @@ Add your SMTP config into `.env` file
 
 ## Usage
 ```shell
-docker-compose up -d --build
+docker compose up -d --build
 ```
