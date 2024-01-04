@@ -64,7 +64,8 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
   ./collect_stream_info.sh &
   _collect_stream_info_pid=$!
   _current_timedate=$(date +%F)
-  _youtube_title=$(printf "%s | %s | %s" "${STREAMER_NAME}" "${_current_timedate}" "${_stream_title}" | cut -c 1-101)
+  _stream_title=$(printf "%s" "${_stream_title}" | cut -c 1-88)
+  _youtube_title=$(printf "%s | %s" "${_stream_title}" "${_current_timedate}")
 
   # Create the input file containing upload parameters
   printf '{
