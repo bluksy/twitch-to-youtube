@@ -85,7 +85,6 @@ while [ ! -f ./twitch_to_youtube.lock ] && [ $upload_attempt -lt 10 ]; do
     --twitch-disable-hosting \
     --config ./auth/config.twitch \
     --logfile ./logs/streamlink.log \
-    --loglevel trace \
     -O 2>/dev/null | xargs -r -0 ./youtubeuploader/youtubeuploader \
     -cache ./auth/request.token \
     -secrets ./auth/yt_secrets.json \
