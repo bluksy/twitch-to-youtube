@@ -43,22 +43,18 @@ log "Retry time: $_retry_time"
 log "Description: $_description"
 log "Max length: $_max_length"
 
-upload_attempt=0
-
-while [ ! -f ./twitch_to_youtube.lock ] && [ $upload_attempt -lt 10 ]; do
+while [ ! -f ./twitch_to_youtube.lock ]; do
   _stream_title=$(streamlink twitch.tv/"$STREAMER_NAME" -j | jq '.metadata?.title?' || true)
   _stream_title=${_stream_title:-null}
 
   # Check if streamer is live
   if [ "$_stream_title" != null ]; then
-    log "$STREAMER_NAME is live. Upload attempt $upload_attempt"
+    log "$STREAMER_NAME is live"
   else
     if [ "$(date +%M)" = "00" ]; then
       log "$STREAMER_NAME is not live"
     fi
 
-    # reset counter
-    upload_attempt=0
     sleep "$_retry_time"
     continue
   fi
@@ -89,14 +85,13 @@ while [ ! -f ./twitch_to_youtube.lock ] && [ $upload_attempt -lt 10 ]; do
     -cache ./auth/request.token \
     -secrets ./auth/yt_secrets.json \
     -metaJSON ./yt_input \
-    -metaJSONout "./logs/youtubeuploader_$_current_timedate.log" \
-    -filename - >/dev/null 2>&1 || upload_attempt=$((upload_attempt+1)) && kill $_collect_stream_info_pid && continue
+    -metaJSONout ./yt_output.json \
+    -filename - >/dev/null 2>&1
 
   kill $_collect_stream_info_pid
 
-  ./update_latest_video.sh || (touch ./twitch_to_youtube.lock && exit 1)
+  ./update_latest_video.sh
   log "Recording and uploading completed"
 done
 
-log "Exceeded upload attempts"
 touch ./twitch_to_youtube.lock && exit 1

@@ -7,36 +7,25 @@ set +a
 . "$(dirname "$0")/functions.sh"
 . "$(dirname "$0")/youtube_api.sh"
 
+if [ ! -f ./yt_output.json ];
+then
+  log "Output from youtubeuploader missing"
+fi
+
 # Get publish delay from env variables; default is 1 day
 PUBLISH_DELAY_SECONDS=${PUBLISH_DELAY_SECONDS:-86400}
-
-# Create empty last_video_id file in case it doesn't exist
-if [ ! -f ./last_video_id ];
-then
-    touch ./last_video_id
-fi
 
 _youtube_api_token=""
 refresh_youtube_token _youtube_api_token
 
 # Get the latest video ID and title
-_latest_video_detail=""
-_latest_video_category=""
-get_latest_video_detail "$_youtube_api_token" _latest_video_detail
-_latest_video_id=$(echo "$_latest_video_detail" | jq -r '.id.videoId')
+_latest_video_detail=$(cat ./yt_output.json)
+_latest_video_id=$(echo "$_latest_video_detail" | jq -r '.id')
 _latest_video_title=$(echo "$_latest_video_detail" | jq '.snippet.title')
 _latest_video_title=${_latest_video_title:1:-1}
+_latest_video_category=$(echo "$_latest_video_detail" | jq '.snippet.categoryId')
 
-# Get video category (required for update EP)
-get_video_category "$_youtube_api_token" "$_latest_video_id" _latest_video_category
-
-if [ "$(cat ./last_video_id)" = "${_latest_video_id}" ];
-then
-  log "video id same as last one"
-  exit 0
-fi
-
-echo "${_latest_video_id}" > last_video_id
+log "youtubeuploader output: $_latest_video_detail"
 
 # Set the desired publish date and time in RFC3339 format
 # Get current timestamp
@@ -74,3 +63,5 @@ _update_video_request_body='{
 }'
 
 update_video "$_youtube_api_token" "$_update_video_request_body"
+
+rm ./yt_output.json
