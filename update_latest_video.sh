@@ -7,9 +7,18 @@ set +a
 . "$(dirname "$0")/functions.sh"
 . "$(dirname "$0")/youtube_api.sh"
 
-if [ ! -f ./yt_output.json ];
+if [ -z "$1" ]; then
+  log "Missing recording id argument"
+  exit 1
+fi
+
+_recording_id="$1"
+
+if [ ! -f "./yt_output.$_recording_id" ];
 then
-  log "Output from youtubeuploader missing"
+  log "Output from youtubeuploader missing (ID: $_recording_id)"
+  rm "./title_changes.$_recording_id" || true
+  exit 1
 fi
 
 # Get publish delay from env variables; default is 1 day
@@ -19,7 +28,7 @@ _youtube_api_token=""
 refresh_youtube_token _youtube_api_token
 
 # Get the latest video ID and title
-_latest_video_detail=$(cat ./yt_output.json)
+_latest_video_detail=$(cat "./yt_output.$_recording_id")
 _latest_video_id=$(echo "$_latest_video_detail" | jq -r '.id')
 _latest_video_title=$(echo "$_latest_video_detail" | jq '.snippet.title')
 _latest_video_title=${_latest_video_title:1:-1}
@@ -40,12 +49,12 @@ _publish_time=$(date -u -d "@$_tomorrow_timestamp" +"%Y-%m-%dT%H:%M:%SZ")
 log "Publish time: $_publish_time"
 
 # if title_changes file doesn't exist then use just description from env variable
-if [ ! -f ./title_changes ];
+if [ ! -f "./title_changes.$_recording_id" ];
 then
   _description="${DESCRIPTION}"
 else
-  _description=$(printf '%s\\n%s' "$(cat title_changes)" "${DESCRIPTION}" )
-  rm ./title_changes
+  _description=$(printf '%s\\n%s' "$(cat "./title_changes.$_recording_id")" "${DESCRIPTION}" )
+  rm "./title_changes.$_recording_id"
 fi
 
 # Build the JSON data for the API request
@@ -63,5 +72,3 @@ _update_video_request_body='{
 }'
 
 update_video "$_youtube_api_token" "$_update_video_request_body"
-
-rm ./yt_output.json

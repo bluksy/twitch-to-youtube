@@ -36,7 +36,8 @@ fi
 
 _retry_time=${RETRY_TIME:-30s}
 _description=${DESCRIPTION:-""}
-_max_length=${MAX_LENGTH:-"8:00:00"}
+_max_length_string="$MAX_LENGTH_IN_HOURS:00:00"
+_max_length=${_max_length_string:-"8:00:00"}
 
 log "Streamer name: $STREAMER_NAME"
 log "Retry time: $_retry_time"
@@ -49,7 +50,9 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
 
   # Check if streamer is live
   if [ "$_stream_title" != null ]; then
+    _recording_id=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 13; echo)
     log "$STREAMER_NAME is live"
+    log "Recording ID: $_recording_id"
   else
     if [ "$(date +%M)" = "00" ]; then
       log "$STREAMER_NAME is not live"
@@ -59,39 +62,41 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
     continue
   fi
 
-  ./collect_stream_info.sh &
-  _collect_stream_info_pid=$!
-  _current_timedate=$(date +%F)
-  # Remove outer quotes from the title
-  _stream_title=${_stream_title:1:-1}
-  # Cut the title if it's too long for youtube
-  _stream_title=$(printf "%s" "${_stream_title}" | cut -c 1-88)
-  _youtube_title=$(printf "%s | %s" "${_stream_title}" "${_current_timedate}")
+  ./record_stream.sh "$_stream_title" "$_description" "$_max_length" "$_recording_id" &
+  _record_stream_pid=$!
+  _segment_end=$(date -d "@$(($(date +%s) + $((2 * 60 - 10))))" +"%s")
 
-  # Create the input file containing upload parameters
-  printf '{
-    "title": "%s",
-    "privacyStatus": "private",
-    "recordingDate": "%s",
-    "description": "%s"
-  }' "${_youtube_title}" "${_current_timedate}" "${_description}" > ./yt_input
+  # this loop checks if recording process is still active
+  # this loop also starts new recording 10s before the max length is about to exceed
+  while true; do
+    if ps | grep "${_record_stream_pid}[^[]" >/dev/null ; then
+      if [ "$(date +%s)" -ge "$_segment_end" ]; then
+        log "Recording $_recording_id almost exceeded max length - starting new recording"
+        continue 2
+      else
+        if [ "$(date +%M)" = "00" ]; then
+          log "Recording of '$_stream_title' still running (ID: $_recording_id)"
+        fi
+        # process is still running
+        sleep 10s
+        continue
+      fi
+    else
+      log "No recording process found"
+        # If the process is already terminated, then there are 2 cases:
+        # 1) the process executed and stop successfully
+        # 2) it is terminated abnormally
 
-  streamlink twitch.tv/$STREAMER_NAME best \
-    --hls-duration $_max_length \
-    --twitch-disable-hosting \
-    --config ./auth/config.twitch \
-    --logfile ./logs/streamlink.log \
-    -O 2>/dev/null | xargs -r -0 ./youtubeuploader/youtubeuploader \
-    -cache ./auth/request.token \
-    -secrets ./auth/yt_secrets.json \
-    -metaJSON ./yt_input \
-    -metaJSONout ./yt_output.json \
-    -filename - >/dev/null 2>&1
-
-  kill $_collect_stream_info_pid
-
-  ./update_latest_video.sh
-  log "Recording and uploading completed"
+        if wait $_record_stream_pid # check if process executed successfully or not
+        then
+          log "Process exited successfully"
+          continue 2
+        else
+            log "Segment recording failed (returned $?)" # process terminated abnormally
+            continue 2
+        fi
+    fi
+  done
 done
 
 touch ./twitch_to_youtube.lock && exit 1
