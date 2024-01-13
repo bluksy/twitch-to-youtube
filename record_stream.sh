@@ -71,7 +71,7 @@ printf '{
 }' "${_youtube_title}" "${_current_timedate}" "${_description}" > "./yt_input.$_recording_id"
 
 streamlink "twitch.tv/$STREAMER_NAME" best \
-  --hls-duration "00:02:00" \
+  --hls-duration "$_max_length" \
   --twitch-disable-hosting \
   --config ./auth/config.twitch \
   --logfile ./logs/streamlink.log \

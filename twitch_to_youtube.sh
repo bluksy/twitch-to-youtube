@@ -64,7 +64,7 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
 
   ./record_stream.sh "$_stream_title" "$_description" "$_max_length" "$_recording_id" &
   _record_stream_pid=$!
-  _segment_end=$(date -d "@$(($(date +%s) + $((2 * 60 - 10))))" +"%s")
+  _segment_end=$(date -d "@$(($(date +%s) + $(($MAX_LENGTH_IN_HOURS * 60 - 10))))" +"%s")
 
   # this loop checks if recording process is still active
   # this loop also starts new recording 10s before the max length is about to exceed
