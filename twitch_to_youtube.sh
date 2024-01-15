@@ -64,7 +64,7 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
 
   ./record_stream.sh "$_stream_title" "$_description" "$_max_length" "$_recording_id" &
   _record_stream_pid=$!
-  _segment_end=$(date -d "@$(($(date +%s) + $(($MAX_LENGTH_IN_HOURS * 3600 - 10))))" +"%s")
+  _segment_end=$(date -d "@$(($(date +%s) + $((MAX_LENGTH_IN_HOURS * 3600 - 10))))" +"%s")
 
   # this loop checks if recording process is still active
   # this loop also starts new recording 10s before the max length is about to exceed
@@ -82,17 +82,16 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
         continue
       fi
     else
-      log "No recording process found"
         # If the process is already terminated, then there are 2 cases:
         # 1) the process executed and stop successfully
         # 2) it is terminated abnormally
 
         if wait $_record_stream_pid # check if process executed successfully or not
         then
-          log "Process exited successfully"
+          log "Recording exited successfully (ID: $_recording_id)"
           continue 2
         else
-            log "Segment recording failed (returned $?)" # process terminated abnormally
+            log "Recording failed (returned $?) (ID: $_recording_id)" # process terminated abnormally
             continue 2
         fi
     fi
