@@ -53,6 +53,19 @@ if [ -n "$TIMEZONE" ]; then
   export TZ=${TIMEZONE}
 fi
 
+if [ -n "$RECORDING_PATH" ]; then
+  # let's assume 3GB per hour
+  _minimum_required_space=$(($MAX_LENGTH_IN_HOURS * 3 * 1024 * 1024))
+  if [ $(df -k /app/recordings | tail -n1 | awk '{print $4}') -gt $_minimum_required_space ]; then
+    _recording_path="/app/recordings/$STREAMER_NAME"_{time:%Y-%m-%dT%H:%M}_{id}.ts
+  else
+    log "Not enough space in recording path. Need at least $_minimum_required_space bytes!"
+    _recording_path="/dev/null"
+  fi
+else
+  _recording_path="/dev/null"
+fi
+
 ./collect_stream_info.sh "$_recording_id" &
 _collect_stream_info_pid=$!
 _current_timedate=$(date +%F)
@@ -75,7 +88,8 @@ streamlink "twitch.tv/$STREAMER_NAME" best \
   --twitch-disable-hosting \
   --config ./auth/config.twitch \
   --logfile ./logs/streamlink.log \
-  -O 2>/dev/null | xargs -r ./youtubeuploader/youtubeuploader \
+  --progress no \
+  --record-and-pipe "$_recording_path" | xargs -r ./youtubeuploader/youtubeuploader \
   -cache ./auth/request.token \
   -secrets ./auth/yt_secrets.json \
   -metaJSON "./yt_input.$_recording_id" \

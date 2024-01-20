@@ -15,4 +15,7 @@ twitch_validate_response.json
 logs/*
 !logs/.gitkeep
 
+recordings/*
+!recordings/.gitkeep
+
 *.lock

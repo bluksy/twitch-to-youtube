@@ -11,11 +11,7 @@ if [ -f ./twitch_to_youtube.lock ]; then
   exit 0
 fi
 
-if [ -z "$STREAMER_NAME" ]; then
-  log "STREAMER_NAME variable missing"
-  touch ./twitch_to_youtube.lock
-  exit 1
-fi
+check_vars STREAMER_NAME YT_CHANNEL_ID MAX_LENGTH_IN_HOURS
 
 if [ ! -f ./auth/yt_secrets.json ]; then
     log "File ./auth/yt_secrets.json does not exist"
