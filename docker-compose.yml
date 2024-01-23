@@ -12,3 +12,4 @@ services:
       - ./.env:/app/.env
       - ./auth:/app/auth
       - ./logs/:/app/logs
+      - ${RECORDING_PATH:-/dev/null}:/app/recordings

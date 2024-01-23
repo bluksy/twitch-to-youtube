@@ -9,6 +9,13 @@ set +a
 
 check_vars STREAMER_NAME TWITCH_CLIENT_ID TWITCH_CLIENT_SECRET
 
+if [ -z "$1" ]; then
+  log "Missing recording id argument"
+  exit 1
+fi
+
+_recording_id="$1"
+
 convert_seconds()
 {
     local __t=$1
@@ -33,7 +40,7 @@ convert_seconds()
 
 _old_stream_title=""
 _start_in_seconds=$(date +%s)
-printf '%s\\n\\n' "Title changes:" > title_changes
+printf '%s\\n\\n' "Title changes:" > "title_changes.$_recording_id"
 
 while [ ! -f ./collect_stream_info.lock ]
 do
@@ -58,8 +65,8 @@ do
         convert_seconds $_diff_sec _timestamp
       fi
 
-      log "Refreshing title"
-      printf '%s %s\\n' "${_timestamp}" "${_stream_title:1:-1}" >> ./title_changes
+      log "Refreshing title (ID: $_recording_id)"
+      printf '%s %s\\n' "${_timestamp}" "${_stream_title:1:-1}" >> "./title_changes.$_recording_id"
 
       _old_stream_title="$_stream_title"
     fi
