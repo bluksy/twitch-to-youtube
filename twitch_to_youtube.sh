@@ -70,7 +70,7 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
         log "Recording $_recording_id almost exceeded max length - starting new recording"
         continue 2
       else
-        if [ "$(date +%M)" = "00" ] && [ "$(date +%S)" -lt "20" ]; then
+        if [ "$(date +%M)" = "00" ] && [ "$(date +%S)" -lt "10" ]; then
           log "Recording of '$_stream_title' still running (ID: $_recording_id)"
         fi
         # process is still running
