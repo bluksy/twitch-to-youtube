@@ -54,6 +54,11 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
       log "$STREAMER_NAME is not live"
     fi
 
+    if [ "$(date -u +%H)" = "08" ]; then
+      log "Resetting yt_quota file"
+      echo 0 > ./yt_quota
+    fi
+
     sleep "$_retry_time"
     continue
   fi

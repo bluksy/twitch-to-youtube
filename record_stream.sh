@@ -34,6 +34,14 @@ fi
 
 _recording_id="$4"
 
+if [ ! -f "./yt_quota" ]; then
+  log "Creating yt_quota file"
+  echo 0 > ./yt_quota
+  _yt_quota=0
+else
+  _yt_quota=$(cat ./yt_quota)
+fi
+
 if [ -z "$STREAMER_NAME" ]; then
   log "STREAMER_NAME variable missing"
   exit 1
@@ -83,18 +91,39 @@ printf '{
   "description": "%s"
 }' "${_youtube_title}" "${_current_timedate}" "${_description}" > "./yt_input.$_recording_id"
 
-streamlink "twitch.tv/$STREAMER_NAME" best \
-  --hls-duration "$_max_length" \
-  --twitch-disable-hosting \
-  --config ./auth/config.twitch \
-  --logfile ./logs/streamlink.log \
-  --progress no \
-  --record-and-pipe "$_recording_path" | xargs -r ./youtubeuploader/youtubeuploader \
-  -cache ./auth/request.token \
-  -secrets ./auth/yt_secrets.json \
-  -metaJSON "./yt_input.$_recording_id" \
-  -metaJSONout "./yt_output.$_recording_id" \
-  -filename - >/dev/null 2>&1 || true
+if [[ $_yt_quota -le 8350 ]]; then
+  # record and upload to youtube
+  streamlink "twitch.tv/$STREAMER_NAME" best \
+    --hls-duration "$_max_length" \
+    --twitch-disable-hosting \
+    --config ./auth/config.twitch \
+    --logfile ./logs/streamlink.log \
+    --progress no \
+    --record-and-pipe "$_recording_path" | xargs -r ./youtubeuploader/youtubeuploader \
+    -cache ./auth/request.token \
+    -secrets ./auth/yt_secrets.json \
+    -metaJSON "./yt_input.$_recording_id" \
+    -metaJSONout "./yt_output.$_recording_id" \
+    -filename - >/dev/null 2>&1 || true
+elif [[ $_recording_path != "/dev/null" ]]; then
+  # only record
+  streamlink "twitch.tv/$STREAMER_NAME" best \
+    --hls-duration "$_max_length" \
+    --twitch-disable-hosting \
+    --config ./auth/config.twitch \
+    --logfile ./logs/streamlink.log \
+    --progress no \
+    --record "$_recording_path"
+else
+  log "Youtube quota exceeded and recording path is not set!"
+  exit 1
+fi
+
+# uploading succeeded
+if [ -f "./yt_output.$_recording_id" ];
+then
+  echo $((_yt_quota + 1650)) > ./yt_quota
+fi
 
 kill $_collect_stream_info_pid
 rm "./yt_input.$_recording_id"
