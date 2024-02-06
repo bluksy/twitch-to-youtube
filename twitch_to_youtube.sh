@@ -25,6 +25,11 @@ if [ ! -f ./auth/request.token ]; then
     exit 1
 fi
 
+if [ ! -f "./yt_quota" ]; then
+  log "Creating yt_quota file"
+  echo 0 > ./yt_quota
+fi
+
 if [ -n "$TIMEZONE" ]; then
   export TZ=${TIMEZONE}
   log "Timezone: $TZ"
@@ -52,6 +57,7 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
   else
     if [ "$(date +%M)" = "00" ]; then
       log "$STREAMER_NAME is not live"
+      log "Current quota: $(cat ./yt_quota)"
     fi
 
     if [ "$(date -u +%H)" = "08" ]; then
