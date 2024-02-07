@@ -35,7 +35,7 @@ if [ -n "$TIMEZONE" ]; then
   log "Timezone: $TZ"
 fi
 
-_retry_time=${RETRY_TIME:-30s}
+_retry_time=${RETRY_TIME:-60s}
 _description=${DESCRIPTION:-""}
 _max_length_string="$MAX_LENGTH_IN_HOURS:00:00"
 _max_length=${_max_length_string:-"8:00:00"}
@@ -59,10 +59,10 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
     _recording_id=$(head -c 8192 /dev/urandom | LC_ALL=C tr -dc 'A-Za-z0-9_' | head -c 13)
     log "$STREAMER_NAME is live"
     log "Recording ID: $_recording_id"
+    log "Current quota: $(cat ./yt_quota)"
   else
     if [ "$(date +%M)" = "00" ]; then
       log "$STREAMER_NAME is not live"
-      log "Current quota: $(cat ./yt_quota)"
     fi
 
     sleep "$_retry_time"
@@ -71,10 +71,10 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
 
   ./record_stream.sh "$_stream_title" "$_description" "$_max_length" "$_recording_id" &
   _record_stream_pid=$!
-  _segment_end=$(date -d "@$(($(date +%s) + $((MAX_LENGTH_IN_HOURS * 3600 - 20))))" +"%s")
+  _segment_end=$(date -d "@$(($(date +%s) + $((MAX_LENGTH_IN_HOURS * 3600 - 15))))" +"%s")
 
   # this loop checks if recording process is still active
-  # this loop also starts new recording 20s before the max length is about to exceed
+  # this loop also starts new recording 15s before the max length is about to exceed
   while true; do
     if ps | grep "${_record_stream_pid}[^[]" >/dev/null ; then
       if [ "$(date +%s)" -ge "$_segment_end" ]; then
@@ -93,9 +93,11 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
         # 1) the process executed and stop successfully
         # 2) it is terminated abnormally
 
-        if wait $_record_stream_pid # check if process executed successfully or not
-        then
+        # check if process executed successfully or not
+        if wait $_record_stream_pid; then
           log "Recording exited successfully (ID: $_recording_id)"
+          ./update_videos.sh
+
           continue 2
         else
             log "Recording failed (returned $?) (ID: $_recording_id)" # process terminated abnormally

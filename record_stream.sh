@@ -91,7 +91,7 @@ printf '{
   "description": "%s"
 }' "${_youtube_title}" "${_current_timedate}" "${_description}" > "./yt_input.$_recording_id"
 
-if [[ $_yt_quota -le 8350 ]]; then
+if [[ $_yt_quota -le 8400 ]]; then
   # record and upload to youtube
   streamlink "twitch.tv/$STREAMER_NAME" best \
     --hls-duration "$_max_length" \
@@ -125,10 +125,8 @@ rm "./yt_input.$_recording_id"
 # uploading succeeded
 if [ -f "./yt_output.$_recording_id" ]; then
   log "Raising quota number (ID: $_recording_id)"
-  echo $((_yt_quota + 1650)) > ./yt_quota
-
-  ./update_latest_video.sh "$_recording_id"
-  rm "./yt_output.$_recording_id"
+  echo $((_yt_quota + 1600)) > ./yt_quota
+  printf "%s\n" _recording_id  >> stream_ids
 fi
 
 log "Recording of '$_stream_title' completed (ID: $_recording_id)"
