@@ -49,6 +49,11 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
   _stream_title=$(streamlink twitch.tv/"$STREAMER_NAME" -j | jq '.metadata?.title?' || true)
   _stream_title=${_stream_title:-null}
 
+  if [ "$(date -u +%H%M)" = "0800" ]; then
+    log "Resetting yt_quota file"
+    echo 0 > ./yt_quota
+  fi
+
   # Check if streamer is live
   if [ "$_stream_title" != null ]; then
     _recording_id=$(head -c 8192 /dev/urandom | LC_ALL=C tr -dc 'A-Za-z0-9_' | head -c 13)
@@ -58,11 +63,6 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
     if [ "$(date +%M)" = "00" ]; then
       log "$STREAMER_NAME is not live"
       log "Current quota: $(cat ./yt_quota)"
-    fi
-
-    if [ "$(date -u +%H)" = "08" ]; then
-      log "Resetting yt_quota file"
-      echo 0 > ./yt_quota
     fi
 
     sleep "$_retry_time"

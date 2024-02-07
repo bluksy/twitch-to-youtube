@@ -119,15 +119,16 @@ else
   exit 1
 fi
 
-# uploading succeeded
-if [ -f "./yt_output.$_recording_id" ];
-then
-  echo $((_yt_quota + 1650)) > ./yt_quota
-fi
-
 kill $_collect_stream_info_pid
 rm "./yt_input.$_recording_id"
 
-./update_latest_video.sh "$_recording_id"
-rm "./yt_output.$_recording_id"
-log "Recording and uploading of '$_stream_title' completed (ID: $_recording_id)"
+# uploading succeeded
+if [ -f "./yt_output.$_recording_id" ]; then
+  log "Raising quota number (ID: $_recording_id)"
+  echo $((_yt_quota + 1650)) > ./yt_quota
+
+  ./update_latest_video.sh "$_recording_id"
+  rm "./yt_output.$_recording_id"
+fi
+
+log "Recording of '$_stream_title' completed (ID: $_recording_id)"
