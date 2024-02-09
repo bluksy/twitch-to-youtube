@@ -56,7 +56,7 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
 
   # Check if streamer is live
   if [ "$_stream_title" != null ]; then
-    _recording_id=$(head -c 8192 /dev/urandom | LC_ALL=C tr -dc 'A-Za-z0-9_' | head -c 13)
+    _recording_id=$(xxd -l8 -p /dev/urandom)
     log "$STREAMER_NAME is live"
     log "Recording ID: $_recording_id"
     log "Current quota: $(cat ./yt_quota)"

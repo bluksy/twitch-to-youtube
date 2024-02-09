@@ -126,7 +126,7 @@ rm "./yt_input.$_recording_id"
 if [ -f "./yt_output.$_recording_id" ]; then
   log "Raising quota number (ID: $_recording_id)"
   echo $((_yt_quota + 1600)) > ./yt_quota
-  printf "%s\n" _recording_id  >> stream_ids
+  printf "%s\n" "$_recording_id"  >> stream_ids
 fi
 
 log "Recording of '$_stream_title' completed (ID: $_recording_id)"
