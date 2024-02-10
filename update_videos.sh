@@ -47,7 +47,7 @@ while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
   for _video_id in "$@"; do
     if [[ "$_video_id" = "$_latest_video_id" ]]; then
       if [[ ${#_latest_video_title} -lt 93 ]]; then
-        _latest_video_title=$(_printf "%s part %s" _latest_video_title _part)
+        _latest_video_title=$(printf "%s part %s" _latest_video_title _part)
       fi
 
       _part=$((_part + 1))
