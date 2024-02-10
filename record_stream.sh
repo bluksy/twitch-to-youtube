@@ -35,7 +35,7 @@ fi
 _recording_id="$4"
 
 if [ ! -f "./yt_quota" ]; then
-  log "Creating yt_quota file"
+  log "Creating yt_quota file" "$_recording_id"
   echo 0 > ./yt_quota
   _yt_quota=0
 else
@@ -43,17 +43,17 @@ else
 fi
 
 if [ -z "$STREAMER_NAME" ]; then
-  log "STREAMER_NAME variable missing"
+  log "STREAMER_NAME variable missing" "$_recording_id"
   exit 1
 fi
 
 if [ ! -f ./auth/yt_secrets.json ]; then
-    log "File ./auth/yt_secrets.json does not exist"
+    log "File ./auth/yt_secrets.json does not exist" "$_recording_id"
     exit 1
 fi
 
 if [ ! -f ./auth/request.token ]; then
-    log "File ./auth/request.token does not exist"
+    log "File ./auth/request.token does not exist" "$_recording_id"
     exit 1
 fi
 
@@ -67,7 +67,7 @@ if [ -n "$RECORDING_PATH" ]; then
   if [ $(df -P /app/recordings | tail -n1 | awk '{print $4}') -gt $_minimum_required_space ]; then
     _recording_path="/app/recordings/$STREAMER_NAME"_{time:%Y-%m-%dT%H%M}_{id}.ts
   else
-    log "Not enough space in recording path. Need at least $_minimum_required_space bytes!"
+    log "Not enough space in recording path. Need at least $_minimum_required_space bytes!" "$_recording_id"
     _recording_path="/dev/null"
   fi
 else
@@ -92,6 +92,8 @@ printf '{
 }' "${_youtube_title}" "${_current_timedate}" "${_description}" > "./yt_input.$_recording_id"
 
 if [[ $_yt_quota -le 8400 ]]; then
+  log "Raising quota number" "$_recording_id"
+  echo $((_yt_quota + 1600)) > ./yt_quota
   # record and upload to youtube
   streamlink "twitch.tv/$STREAMER_NAME" best \
     --hls-duration "$_max_length" \
@@ -115,7 +117,7 @@ elif [[ $_recording_path != "/dev/null" ]]; then
     --progress no \
     --record "$_recording_path"
 else
-  log "Youtube quota exceeded and recording path is not set!"
+  log "Youtube quota exceeded and recording path is not set!" "$_recording_id"
   exit 1
 fi
 
@@ -124,9 +126,7 @@ rm "./yt_input.$_recording_id"
 
 # uploading succeeded
 if [ -f "./yt_output.$_recording_id" ]; then
-  log "Raising quota number (ID: $_recording_id)"
-  echo $((_yt_quota + 1600)) > ./yt_quota
   printf "%s\n" "$_recording_id"  >> stream_ids
 fi
 
-log "Recording of '$_stream_title' completed (ID: $_recording_id)"
+log "Recording of '$_stream_title' completed" "$_recording_id"

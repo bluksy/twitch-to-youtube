@@ -81,6 +81,7 @@ get_video_category () {
 update_video () {
   local __youtube_token=$1
   local __request_body=$2
+  local __recording_id=$3
 
   log "UPDATE VIDEO REQUEST | $(printf "%s" "$__request_body" | jq -c)"
 
@@ -91,5 +92,5 @@ update_video () {
     -H "Content-Type: application/json" \
     -d "$__request_body" \
     "https://www.googleapis.com/youtube/v3/videos?part=status&part=snippet")
-  log "UPDATE VIDEO RESPONSE | $(printf "%s" "$_video_update_response" | jq -c)"
+  log "UPDATE VIDEO RESPONSE | $(printf "%s" "$_video_update_response" | jq -c)" "$__recording_id"
 }

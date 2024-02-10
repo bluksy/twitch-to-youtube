@@ -57,9 +57,9 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
   # Check if streamer is live
   if [ "$_stream_title" != null ]; then
     _recording_id=$(xxd -l8 -p /dev/urandom)
-    log "$STREAMER_NAME is live"
+    log "$STREAMER_NAME is live" "$_recording_id"
     log "Recording ID: $_recording_id"
-    log "Current quota: $(cat ./yt_quota)"
+    log "Current quota: $(cat ./yt_quota)" "$_recording_id"
   else
     if [ "$(date +%M)" = "00" ]; then
       log "$STREAMER_NAME is not live"
@@ -78,11 +78,11 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
   while true; do
     if ps | grep "${_record_stream_pid}[^[]" >/dev/null ; then
       if [ "$(date +%s)" -ge "$_segment_end" ]; then
-        log "Recording $_recording_id almost exceeded max length - starting new recording"
+        log "Recording almost exceeded max length - starting new recording" "$_recording_id"
         continue 2
       else
         if [ "$(date +%M)" = "00" ] && [ "$(date +%S)" -lt "10" ]; then
-          log "Recording of '$_stream_title' still running (ID: $_recording_id)"
+          log "Recording of '$_stream_title' still running" "$_recording_id"
         fi
         # process is still running
         sleep 10s
@@ -95,13 +95,14 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
 
         # check if process executed successfully or not
         if wait $_record_stream_pid; then
-          log "Recording exited successfully (ID: $_recording_id)"
+          log "Recording exited successfully" "$_recording_id"
           ./update_videos.sh
 
           continue 2
         else
-            log "Recording failed (returned $?) (ID: $_recording_id)" # process terminated abnormally
-            continue 2
+          # process terminated abnormally
+          log "Recording failed (returned $?)" "$_recording_id"
+          continue 2
         fi
     fi
   done
