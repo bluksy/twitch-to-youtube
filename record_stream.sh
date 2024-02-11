@@ -63,7 +63,7 @@ fi
 
 if [ -n "$RECORDING_PATH" ]; then
   # let's assume 3GB per hour
-  _minimum_required_space=$(($MAX_LENGTH_IN_HOURS * 3 * 1024 * 1024))
+  _minimum_required_space=$((MAX_LENGTH_IN_MINUTES * 48 * 1024))
   if [ $(df -P /app/recordings | tail -n1 | awk '{print $4}') -gt $_minimum_required_space ]; then
     _recording_path="/app/recordings/$STREAMER_NAME"_{time:%Y-%m-%dT%H%M}_{id}.ts
   else

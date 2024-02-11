@@ -11,7 +11,7 @@ if [ -f ./twitch_to_youtube.lock ]; then
   exit 0
 fi
 
-check_vars STREAMER_NAME YT_CHANNEL_ID MAX_LENGTH_IN_HOURS
+check_vars STREAMER_NAME YT_CHANNEL_ID MAX_LENGTH_IN_MINUTES
 
 if [ ! -f ./auth/yt_secrets.json ]; then
     log "File ./auth/yt_secrets.json does not exist"
@@ -37,8 +37,8 @@ fi
 
 _retry_time=${RETRY_TIME:-60s}
 _description=${DESCRIPTION:-""}
-_max_length_string="$MAX_LENGTH_IN_HOURS:00:00"
-_max_length=${_max_length_string:-"8:00:00"}
+_max_length_string="$((MAX_LENGTH_IN_MINUTES / 60)):$((MAX_LENGTH_IN_MINUTES % 60)):00"
+_max_length=${_max_length_string:-"3:00:00"}
 
 log "Streamer name: $STREAMER_NAME"
 log "Retry time: $_retry_time"
@@ -71,7 +71,7 @@ while [ ! -f ./twitch_to_youtube.lock ]; do
 
   ./record_stream.sh "$_stream_title" "$_description" "$_max_length" "$_recording_id" &
   _record_stream_pid=$!
-  _segment_end=$(date -d "@$(($(date +%s) + $((MAX_LENGTH_IN_HOURS * 3600 - 15))))" +"%s")
+  _segment_end=$(date -d "@$(($(date +%s) + $((MAX_LENGTH_IN_MINUTES * 60 - 15))))" +"%s")
 
   # this loop checks if recording process is still active
   # this loop also starts new recording 15s before the max length is about to exceed
