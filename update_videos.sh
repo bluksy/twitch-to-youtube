@@ -60,9 +60,9 @@ while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
   # if title_changes file doesn't exist then use just description from env variable
   if [ ! -f "./title_changes.$_recording_id" ];
   then
-    _description=$(printf '\\n%s\\n%s' "${_description}" "${DESCRIPTION}" )
+    _description=$(printf '\\n\\n%s\\n%s' "${_description}" "${DESCRIPTION}" )
   else
-    _description=$(printf '\\n%s\\n%s\\n%s' "${_description}" "$(cat "./title_changes.$_recording_id")" "${DESCRIPTION}" )
+    _description=$(printf '\\n\\n%s\\n%s\\n%s' "${_description}" "$(cat "./title_changes.$_recording_id")" "${DESCRIPTION}" )
     rm "./title_changes.$_recording_id"
   fi
 
