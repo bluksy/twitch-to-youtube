@@ -8,6 +8,8 @@ auth/twitch_token
 
 title_changes*
 yt_input*
+yt_quota
+stream_ids
 
 youtube_token_response.json
 twitch_validate_response.json

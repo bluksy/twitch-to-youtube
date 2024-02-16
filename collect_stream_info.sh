@@ -52,7 +52,7 @@ do
     _stream_title="$(echo "$_stream_detail_body" | jq '.data[0].title')"
 
     if [ "$_stream_title" = "null" ]; then
-      log "stream ended"
+      log "stream ended - exiting collect_stream_info" "$_recording_id"
       exit 0
     fi
 
@@ -65,7 +65,7 @@ do
         convert_seconds $_diff_sec _timestamp
       fi
 
-      log "Refreshing title (ID: $_recording_id)"
+      log "Refreshing title" "$_recording_id"
       printf '%s %s\\n' "${_timestamp}" "${_stream_title:1:-1}" >> "./title_changes.$_recording_id"
 
       _old_stream_title="$_stream_title"
@@ -74,7 +74,7 @@ do
     sleep 1m
     continue
   elif [ "$_stream_detail_status" = "000" ]; then
-    log "network error"
+    log "network error" "$_recording_id"
     sleep 1m
     continue
   else
@@ -84,5 +84,5 @@ do
   fi
 done
 
-log "process is locked"
+log "process is locked" "$_recording_id"
 exit 0

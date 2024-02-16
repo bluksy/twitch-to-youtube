@@ -1,8 +1,10 @@
 #!/bin/ash
 
+# $1: Log message
+# $2: Recording ID
 log ()
 {
-  printf "[%s] ${0##*/} | %s\n" "$(date)" "$1"
+  printf "[%s] [%s] %s | %s\n" "$(date -u +"%Y-%m-%dT%H:%M:%S")" "${2:-No ID}" "${0##*/}" "$1"
 }
 
 check_vars()
