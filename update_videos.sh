@@ -39,6 +39,7 @@ while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
 
   _current_video_detail=$(cat "./yt_output.$_recording_id")
   _current_video_id=$(echo "$_current_video_detail" | jq '.id')
+  _current_video_id=${_current_video_id:1:-1}
   _current_video_title=$(echo "$_current_video_detail" | jq '.snippet.title')
   _current_video_title=${_current_video_title:1:-1}
   _current_video_category=$(echo "$_current_video_detail" | jq '.snippet.categoryId')
