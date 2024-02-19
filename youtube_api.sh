@@ -83,7 +83,7 @@ update_video () {
   local __request_body=$2
   local __recording_id=$3
 
-  log "UPDATE VIDEO REQUEST | $(printf "%s" "$__request_body" | jq -c)"
+  log "UPDATE VIDEO REQUEST | $(printf "%s" "$__request_body" | jq -c)" "$__recording_id"
 
   local _video_update_response=""
   _video_update_response=$(curl -X PUT \

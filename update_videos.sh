@@ -6,6 +6,8 @@ set +a
 
 . "$(dirname "$0")/functions.sh"
 . "$(dirname "$0")/youtube_api.sh"
+. "$(dirname "$0")/twitch_api.sh"
+. "$(dirname "$0")/archive_api.sh"
 
 if [ ! -f "./stream_ids" ]; then
   log "stream_ids file missing"
@@ -14,6 +16,9 @@ fi
 
 _youtube_api_token=""
 refresh_youtube_token _youtube_api_token
+_vod_id=""
+get_latest_vod_detail _vod_id
+_video_counter=0
 
 while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
   if [ ! -f "./yt_output.$_recording_id" ]; then
@@ -23,6 +28,7 @@ while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
   fi
 
     set -- "$@" "$(jq -r '.id' < "./yt_output.$_recording_id")"
+    _video_counter=$((_video_counter + 1))
 done < stream_ids
 
 while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
@@ -32,7 +38,7 @@ while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
   PUBLISH_DELAY_SECONDS=${PUBLISH_DELAY_SECONDS:-86400}
 
   _current_video_detail=$(cat "./yt_output.$_recording_id")
-  _current_video_id=$(echo "$_current_video_detail" | jq -r '.id')
+  _current_video_id=$(echo "$_current_video_detail" | jq '.id')
   _current_video_title=$(echo "$_current_video_detail" | jq '.snippet.title')
   _current_video_title=${_current_video_title:1:-1}
   _current_video_category=$(echo "$_current_video_detail" | jq '.snippet.categoryId')
@@ -43,7 +49,7 @@ while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
   _description=""
 
   for _video_id in "$@"; do
-    if [[ "$_video_id" = "$_current_video_id" ]]; then
+    if [[ "$_video_id" = "$_current_video_id" ]] && [[ "$_video_counter" -ne 1 ]]; then
       if [[ ${#_current_video_title} -lt 93 ]]; then
         _current_video_title=$(printf "%s part %s" "${_current_video_title}" ${_part})
       fi
@@ -72,7 +78,8 @@ while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
     _update_video_request_body='{
       "id": "'$_current_video_id'",
       "status": {
-        "privacyStatus": "private"
+        "privacyStatus": "private",
+        "embeddable": true
       },
       "snippet": {
         "title":"'$_current_video_title'",
@@ -93,7 +100,8 @@ while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
         "id": "'$_current_video_id'",
         "status": {
           "publishAt": "'$_publish_time'",
-          "privacyStatus": "private"
+          "privacyStatus": "private",
+          "embeddable": true
         },
         "snippet": {
           "title":"'$_current_video_title'",
@@ -104,7 +112,26 @@ while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
   fi
 
   update_video "$_youtube_api_token" "$_update_video_request_body" "$_recording_id"
+
+  if [ -n "$ARCHIVE_API_TOKEN" ]; then
+    _patch_vod_request_body='{
+      "vodId": "'$_vod_id'",
+      "part": "'$_part'",
+      "youtubeId": "'$_current_video_id'",
+      "duration": "10800"
+    }'
+
+    patch_youtube_info "$_patch_vod_request_body" "$_recording_id"
+  fi
   rm "./yt_output.$_recording_id"
 done < stream_ids
+
+if [ -n "$ARCHIVE_API_TOKEN" ]; then
+  _post_refresh_vod_request_body='{
+    "vodId": "'$_vod_id'"
+  }'
+
+  post_refresh_vod "$_post_refresh_vod_request_body" "$_recording_id"
+fi
 
 rm stream_ids
