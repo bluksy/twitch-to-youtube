@@ -60,6 +60,12 @@ while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
     fi
 
     _description=$(printf "%sPART %s: https://www.youtube.com/watch?v=%s\\n\\n" "${_description}" ${_part} "${_video_id}")
+    _patch_vod_request_body='{
+      "vodId": "'$_vod_id'",
+      "part": "'$_part'",
+      "youtubeId": "'$_current_video_id'",
+      "duration": "10800"
+    }'
     _part=$((_part + 1))
   done
 
@@ -115,13 +121,6 @@ while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
   update_video "$_youtube_api_token" "$_update_video_request_body" "$_recording_id"
 
   if [ -n "$ARCHIVE_API_TOKEN" ]; then
-    _patch_vod_request_body='{
-      "vodId": "'$_vod_id'",
-      "part": "'$_part'",
-      "youtubeId": "'$_current_video_id'",
-      "duration": "10800"
-    }'
-
     patch_youtube_info "$_patch_vod_request_body" "$_recording_id"
   fi
   rm "./yt_output.$_recording_id"

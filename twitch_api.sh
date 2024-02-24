@@ -94,3 +94,56 @@ get_stream_detail () {
     echo "$_twitch_stream_detail_response"
   fi
 }
+
+# $1: Return variable - latest vod id
+get_streamer_id () {
+  local __result_streamer_id=$1
+
+  local _twitch_token
+  get_twitch_token _twitch_token
+
+  local _twitch_user_detail_url
+  _twitch_user_detail_url=$(printf 'https://api.twitch.tv/helix/users?login=%s' "$STREAMER_NAME")
+
+  local _twitch_user_detail_response
+  _twitch_user_detail_response=$(curl --silent \
+      -H "Authorization: Bearer $_twitch_token" \
+      -H "Client-Id: $TWITCH_CLIENT_ID" \
+      "${_twitch_user_detail_url}")
+  local _twitch_user_detail_user_id
+  _twitch_user_detail_user_id=$(echo "$_twitch_user_detail_response" | jq -r ".data[0].id")
+
+  if [ "$__result_streamer_id" ]; then
+    eval "$__result_streamer_id="'${_twitch_user_detail_user_id}'""
+  else
+    echo "$_twitch_user_detail_user_id"
+  fi
+}
+
+# $1: Return variable - latest vod id
+get_latest_vod_id () {
+  local __result_latest_vod_id=$1
+
+  local _streamer_id
+  get_streamer_id _streamer_id
+
+  local _twitch_token
+  get_twitch_token _twitch_token
+
+  local _twitch_video_detail_url
+  _twitch_video_detail_url=$(printf 'https://api.twitch.tv/helix/videos?user_id=%s' "$_streamer_id")
+
+  local _twitch_video_detail_response
+  _twitch_video_detail_response=$(curl --silent \
+      -H "Authorization: Bearer $_twitch_token" \
+      -H "Client-Id: $TWITCH_CLIENT_ID" \
+      "${_twitch_video_detail_url}")
+  local _twitch_vod_id
+  _twitch_vod_id=$(echo "$_twitch_video_detail_response" | jq -r ".data[0].id")
+
+  if [ "$__result_latest_vod_id" ]; then
+    eval "$__result_latest_vod_id="'${_twitch_vod_id}'""
+  else
+    echo "$_twitch_vod_id"
+  fi
+}
