@@ -97,6 +97,10 @@ if [[ $_yt_quota -le 8400 ]]; then
   # record and upload to youtube
   streamlink "twitch.tv/$STREAMER_NAME" best \
     --hls-duration "$_max_length" \
+    --stream-timeout 180 \
+    --stream-segment-timeout 30 \
+    --stream-segment-attempts 5 \
+    --hls-playlist-reload-attempts 5 \
     --twitch-disable-hosting \
     --config ./auth/config.twitch \
     --logfile ./logs/streamlink.log \
