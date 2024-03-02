@@ -17,7 +17,7 @@ fi
 _youtube_api_token=""
 refresh_youtube_token _youtube_api_token
 _vod_id=""
-get_latest_vod_detail _vod_id
+get_latest_vod_id _vod_id
 _video_counter=0
 
 while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
