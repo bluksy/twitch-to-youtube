@@ -55,24 +55,25 @@ while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
         _current_video_title=$(printf "%s part %s" "${_current_video_title}" ${_part})
       fi
 
+      _duration=10800
+
+      if [ -f "./recording_duration.$_recording_id" ]; then
+        _duration=$(cat "./recording_duration.$_recording_id")
+        rm "./recording_duration.$_recording_id"
+      fi
+
+      _patch_vod_request_body='{
+        "vodId": "'$_vod_id'",
+        "part": "'$_part'",
+        "youtubeId": "'$_current_video_id'",
+        "duration": '$_duration'
+      }'
+
       _part=$((_part + 1))
       continue;
     fi
 
-    _duration=10800
-
-    if [ -f "./recording_duration.$_recording_id" ]; then
-      _duration=$(cat "./recording_duration.$_recording_id")
-      rm "./recording_duration.$_recording_id"
-    fi
-
     _description=$(printf "%sPART %s: https://www.youtube.com/watch?v=%s\\n\\n" "${_description}" ${_part} "${_video_id}")
-    _patch_vod_request_body='{
-      "vodId": "'$_vod_id'",
-      "part": "'$_part'",
-      "youtubeId": "'$_current_video_id'",
-      "duration": '$_duration'
-    }'
     _part=$((_part + 1))
   done
 
