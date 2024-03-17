@@ -46,10 +46,12 @@ while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
   _current_video_category=${_current_video_category:1:-1}
   log "youtubeuploader output: $_current_video_detail" "$_recording_id"
 
-  _part=1
+  _part=0
   _description=""
 
   for _video_id in "$@"; do
+    _part=$((_part + 1))
+
     _duration=10800
 
     if [ -f "./recording_duration.$_recording_id" ]; then
@@ -64,17 +66,13 @@ while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
       "duration": '$_duration'
     }'
 
-    if [[ "$_video_id" = "$_current_video_id" ]] && [[ "$_video_counter" -ne 1 ]]; then
-      if [[ ${#_current_video_title} -lt 93 ]]; then
-        _current_video_title=$(printf "%s part %s" "${_current_video_title}" ${_part})
-      fi
-
-      _part=$((_part + 1))
-      continue;
+    if [[ "$_video_counter" -ne 1 ]] && [[ ${#_current_video_title} -lt 93 ]]; then
+      _current_video_title=$(printf "%s part %s" "${_current_video_title}" ${_part})
     fi
 
-    _description=$(printf "%sPART %s: https://www.youtube.com/watch?v=%s\\n\\n\\n" "${_description}" ${_part} "${_video_id}")
-    _part=$((_part + 1))
+    if [[ "$_video_id" != "$_current_video_id" ]]; then
+      _description=$(printf "%sPART %s: https://www.youtube.com/watch?v=%s\\n\\n\\n" "${_description}" ${_part} "${_video_id}")
+    fi
   done
 
   _description=$(printf "%s\\n" "${_description}")
