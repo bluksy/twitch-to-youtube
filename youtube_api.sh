@@ -41,7 +41,7 @@ get_latest_video_detail () {
   _video_search_response_detail=$(curl --silent \
      -H "Authorization: Bearer $__youtube_token" \
      "https://www.googleapis.com/youtube/v3/search?channelId=${YT_CHANNEL_ID}&order=date&part=snippet&type=video&forMine=false&max_results=1")
-  log "VIDEO SEARCH RESPONSE | $(printf "%s" "$_video_search_response_detail" | jq -c)"
+  log "VIDEO SEARCH RESPONSE | $(printf '%s' "$_video_search_response_detail" | jq -c)"
 
   local _video_detail=""
   _video_detail=$(echo "$_video_search_response_detail" | jq '.items[0]')
@@ -65,7 +65,7 @@ get_video_category () {
   _video_detail_response=$(curl --silent \
     -H "Authorization: Bearer $__youtube_token" \
     "https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${__youtube_video_id}")
-  log "VIDEO DETAIL RESPONSE | $(printf "%s" "$_video_detail_response" | jq -c)"
+  log "VIDEO DETAIL RESPONSE | $(printf '%s' "$_video_detail_response" | jq -c)"
   local _video_category=""
   _video_category=$(echo "$_video_detail_response" | jq -r '.items[0].snippet.categoryId')
 
@@ -83,7 +83,7 @@ update_video () {
   local __request_body=$2
   local __recording_id=$3
 
-  log "UPDATE VIDEO REQUEST | $(printf "%s" "$__request_body" | jq -c)" "$__recording_id"
+  log "UPDATE VIDEO REQUEST | $(printf '%s' "$__request_body" | jq -c)" "$__recording_id"
 
   local _video_update_response=""
   _video_update_response=$(curl -X PUT \
@@ -92,5 +92,5 @@ update_video () {
     -H "Content-Type: application/json" \
     -d "$__request_body" \
     "https://www.googleapis.com/youtube/v3/videos?part=status&part=snippet")
-  log "UPDATE VIDEO RESPONSE | $(printf "%s" "$_video_update_response" | jq -c)" "$__recording_id"
+  log "UPDATE VIDEO RESPONSE | $(printf '%s' "$_video_update_response" | jq -c)" "$__recording_id"
 }

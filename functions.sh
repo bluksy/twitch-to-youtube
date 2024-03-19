@@ -4,7 +4,7 @@
 # $2: Recording ID
 log ()
 {
-  printf "[%s] [%s] %s | %s\n" "$(date -u +"%Y-%m-%dT%H:%M:%S")" "${2:-No ID}" "${0##*/}" "$1"
+  printf '[%s] [%s] %s | %s\n' "$(date -u +"%Y-%m-%dT%H:%M:%S")" "${2:-No ID}" "${0##*/}" "$1"
 }
 
 check_vars()

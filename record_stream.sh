@@ -80,8 +80,8 @@ _current_timedate=$(date +%F)
 # Remove outer quotes from the title
 _stream_title=${_stream_title:1:-1}
 # Cut the title if it's too long for youtube
-_stream_title=$(printf "%s" "${_stream_title}" | cut -c 1-88)
-_youtube_title=$(printf "%s | %s" "${_stream_title}" "${_current_timedate}")
+_stream_title=$(printf '%s' "${_stream_title}" | cut -c 1-88)
+_youtube_title=$(printf '%s | %s' "${_stream_title}" "${_current_timedate}")
 _start_in_seconds=$(date +%s)
 
 # Create the input file containing upload parameters
@@ -133,7 +133,7 @@ echo $(($(date +%s)-_start_in_seconds)) > "recording_duration.$_recording_id"
 
 # uploading succeeded
 if [ -f "./yt_output.$_recording_id" ]; then
-  printf "%s\n" "$_recording_id"  >> stream_ids
+  printf '%s\n' "$_recording_id"  >> stream_ids
 fi
 
 log "Recording of '$_stream_title' completed" "$_recording_id"
