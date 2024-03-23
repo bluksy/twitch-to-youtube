@@ -53,7 +53,7 @@ while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
     _part=$((_part + 1))
 
     if [[ "$_video_id" != "$_current_video_id" ]]; then
-      _description=$(printf '%sPART %s: https://www.youtube.com/watch?v=%s\\n\\n' "${_description}" ${_part} "${_video_id}")
+      _description=$(printf '%sPART %s: https://www.youtube.com/watch?v=%s\\n' "${_description}" ${_part} "${_video_id}")
     else
       _duration=10800
 
@@ -74,8 +74,6 @@ while IFS='' read -r _recording_id || [ -n "${_recording_id}" ]; do
       fi
     fi
   done
-
-  _description=$(printf '%s\\n' "${_description}")
 
   # if title_changes file doesn't exist then use just description from env variable
   if [ ! -f "./title_changes.$_recording_id" ];
